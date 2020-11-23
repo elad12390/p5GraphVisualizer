@@ -202,7 +202,6 @@ function mousePressed() {
                         firstVertice = null;
                     }
                 })
-                console.log(edges);
             }
         } else if (selectedTool === MOVE) {
             Array.from(vertices).forEach(v => {
@@ -238,5 +237,4 @@ function mouseDragged() {
 
 function mouseReleased() {
     lockedVertex = null;
-    console.log('mouseReleased');
 }
