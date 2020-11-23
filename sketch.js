@@ -192,14 +192,16 @@ function mousePressed() {
                     }
                 })
             } else if (currentState === STATES.selectedFirstEdge) {
+                let added = false;
                 Array.from(vertices).forEach(v => {
-                    if (vDist({x: mouseX, y: mouseY}, v) <= verticeScale) {
+                    if (!added && vDist({x: mouseX, y: mouseY}, v) <= verticeScale) {
                         const newEdge = new Edge(firstVertice, v);
                         if (!Array.from(edges).find(a => a.equals(newEdge))) {
                             edges.add(newEdge);
                         }
                         currentState = STATES.none;
                         firstVertice = null;
+                        added = true;
                     }
                 })
             }
