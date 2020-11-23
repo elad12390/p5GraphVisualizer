@@ -104,13 +104,11 @@ const reverseGraph = () => {
     }).flat().filter(a => !!a);
 
 
-    console.log('kGraph', kGraph);
     Array.from(edges).forEach(e => {
         kGraph = kGraph.filter(edge => !edge.equals(e));
     });
 
     edges = new Set([...kGraph]);
-    console.log(edges);
 }
 
 function setup() {
@@ -134,7 +132,6 @@ function mouseClicked() {
     } else if (Math.abs(mouseX - (button3Location[0])) < button3Size/2 && Math.abs(mouseY - (button3Location[1] - button3Size/2)) < button3Size/2) {
         selectedTool = MOVE;
     } else if (Math.abs(mouseX - (button4Location[0])) < button4Size[0]/2 && Math.abs(mouseY - (button4Location[1]) < button4Size[1]/2)) {
-        console.log('clicked reverse');
         reverseGraph();
     } else if (Math.abs(mouseX - (drawingBoardLocation[0] + (drawingBoardSize[0] / 2))) < (drawingBoardSize[0]/2) && Math.abs(mouseY - (drawingBoardLocation[1] + (drawingBoardSize[1] / 2))) < (drawingBoardSize[1]/2)) {
         if (selectedTool === VERTICE) {
