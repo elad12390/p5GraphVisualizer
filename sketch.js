@@ -4,6 +4,7 @@ const EDGES = 'edges';
 const MOVE = 'move';
 let vertices = new Set();
 let edges = new Set();
+
 const button1Location = [5, 15];
 const button2Location = [5, 50];
 const button3Location = [25, 120];
@@ -15,9 +16,14 @@ const button5Size = [90, 30];
 const drawingBoardSize = [500,500];
 const drawingBoardLocation = [100,10];
 
+
 const hintBoxSize = [8, 30];
 
+const hintBoxBackground = '#f3ffbe';
+const selectedColor = '#23abe2'
+const movedVertexColor = '#92ff7b'
 const verticeScale = 50;
+
 let vn = 1;
 const STATES = {
     none: 0,
@@ -48,7 +54,7 @@ function draw() {
 const drawMenu = () => {
     // button1
     if (selectedTool === VERTICE) {
-        fill(125, 0, 0);
+        fill(selectedColor);
     } else {
         fill(255, 255, 255, 0);
     }
@@ -58,7 +64,7 @@ const drawMenu = () => {
 
     // button2
     if (selectedTool === EDGES) {
-        fill(125, 0, 0);
+        fill(selectedColor);
     } else {
         fill(255, 255, 255, 0);
     }
@@ -68,7 +74,7 @@ const drawMenu = () => {
     line(button2Location[0] + 25, button2Location[1] + 15, button2Location[0] + 35, button2Location[1] + 15);
 
     if (selectedTool === MOVE) {
-        fill(125, 0, 0);
+        fill(selectedColor);
     } else {
         fill(255, 255, 255, 0);
     }
@@ -93,7 +99,7 @@ const drawMenu = () => {
 const drawVertices = () => {
     Array.from(vertices).forEach((v) => {
         if (v === lockedVertex || v === firstVertice) {
-            fill(0, 255, 0);
+            fill(movedVertexColor);
         } else {
             fill(255, 255, 255, 0);
         }
@@ -113,7 +119,7 @@ const drawEdges = () => {
 
 const drawHint = () => {
     if (hintText) {
-        fill('#7eab95');
+        fill(hintBoxBackground);
         rect(mouseX, mouseY - (hintBoxSize[1]), hintText.length * hintBoxSize[0], hintBoxSize[1], 12);
         fill(0);
         text(hintText, mouseX + 1 + (hintText.length * hintBoxSize[0])/8, mouseY - (hintBoxSize[1]/2) + 4);
@@ -163,7 +169,7 @@ const isInsideBoard = () => (
     (dist(drawingBoardLocation[1] + (drawingBoardSize[1] / 2), mouseY) < ((drawingBoardSize[1] - verticeScale) / 2))
 );
 
-function mouseClicked() {
+function mousePressed() {
     if (isInsideCreateVertexButton()) {
         selectedTool = VERTICE;
     } else if (isInsideCreateEdgeButton()) {
@@ -188,11 +194,15 @@ function mouseClicked() {
             } else if (currentState === STATES.selectedFirstEdge) {
                 Array.from(vertices).forEach(v => {
                     if (vDist({x: mouseX, y: mouseY}, v) <= verticeScale) {
-                        edges.add(new Edge(firstVertice, v));
+                        const newEdge = new Edge(firstVertice, v);
+                        if (!Array.from(edges).find(a => a.equals(newEdge))) {
+                            edges.add(newEdge);
+                        }
                         currentState = STATES.none;
                         firstVertice = null;
                     }
                 })
+                console.log(edges);
             }
         } else if (selectedTool === MOVE) {
             Array.from(vertices).forEach(v => {
@@ -228,4 +238,5 @@ function mouseDragged() {
 
 function mouseReleased() {
     lockedVertex = null;
+    console.log('mouseReleased');
 }
