@@ -12,6 +12,9 @@ const button4Location = [50, 145];
 const button4Size = [90, 30];
 const drawingBoardSize = [500,500];
 const drawingBoardLocation = [100,10];
+
+const hintBoxSize = [8, 30];
+
 const verticeScale = 50;
 let vn = 1;
 const STATES = {
@@ -22,6 +25,10 @@ let firstVertice = null;
 let currentState = STATES.none;
 let selectedTool = VERTICE;
 let lockedVertex = null;
+let hintText = null;
+
+
+
 const drawMenu = () => {
     // button1
     if (selectedTool === VERTICE) {
@@ -91,6 +98,15 @@ const drawEdges = () => {
     })
 }
 
+const drawHint = () => {
+    if (hintText) {
+        fill('#7eab95');
+        rect(mouseX, mouseY - (hintBoxSize[1]), hintText.length * hintBoxSize[0], hintBoxSize[1], 12);
+        fill(0);
+        text(hintText, mouseX + 1 + (hintText.length * hintBoxSize[0])/8, mouseY - (hintBoxSize[1]/2) + 4);
+    }
+}
+
 const reverseGraph = () => {
     let edgesArr = [];
     let kGraph = Array.from(vertices).map(v => {
@@ -111,6 +127,15 @@ const reverseGraph = () => {
     edges = new Set([...kGraph]);
 }
 
+const isInsideFirstButton = () => (Math.abs(mouseX - (button1Location[0] + 10)) < 15 && Math.abs(mouseY - (button1Location[1] + 10)) < 15);
+const isInsideSecondButton = () => (Math.abs(mouseX - (button2Location[0] + 30)) < 45 && Math.abs(mouseY - (button2Location[1] + 10)) < 15);
+const isInsideThirdButton = () => (Math.abs(mouseX - (button3Location[0])) < button3Size/2 && Math.abs(mouseY - (button3Location[1] - button3Size/2)) < button3Size/2);
+const isInsideFourthButton = () => (Math.abs(mouseX - (button4Location[0])) < button4Size[0]/2 && Math.abs(mouseY - (button4Location[1]) < button4Size[1]/2));
+const isInsideBoard = () => (
+    (dist(drawingBoardLocation[0] + (drawingBoardSize[0] / 2), mouseX) < ((drawingBoardSize[0] - verticeScale) / 2)) &&
+    (dist(drawingBoardLocation[1] + (drawingBoardSize[1] / 2), mouseY) < ((drawingBoardSize[1] - verticeScale) / 2))
+);
+
 function setup() {
   // put setup code here
     createCanvas(700, 700)
@@ -122,18 +147,19 @@ function draw() {
     drawMenu();
     drawVertices();
     drawEdges();
+    drawHint();
 }
 
 function mouseClicked() {
-    if (Math.abs(mouseX - (button1Location[0] + 10)) < 15 && Math.abs(mouseY - (button1Location[1] + 10)) < 15) {
+    if (isInsideFirstButton()) {
         selectedTool = VERTICE;
-    } else if (Math.abs(mouseX - (button2Location[0] + 30)) < 45 && Math.abs(mouseY - (button2Location[1] + 10)) < 15) {
+    } else if (isInsideSecondButton()) {
         selectedTool = EDGES;
-    } else if (Math.abs(mouseX - (button3Location[0])) < button3Size/2 && Math.abs(mouseY - (button3Location[1] - button3Size/2)) < button3Size/2) {
+    } else if (isInsideThirdButton()) {
         selectedTool = MOVE;
-    } else if (Math.abs(mouseX - (button4Location[0])) < button4Size[0]/2 && Math.abs(mouseY - (button4Location[1]) < button4Size[1]/2)) {
+    } else if (isInsideFourthButton()) {
         reverseGraph();
-    } else if (Math.abs(mouseX - (drawingBoardLocation[0] + (drawingBoardSize[0] / 2))) < (drawingBoardSize[0]/2) && Math.abs(mouseY - (drawingBoardLocation[1] + (drawingBoardSize[1] / 2))) < (drawingBoardSize[1]/2)) {
+    } else if (isInsideBoard()) {
         if (selectedTool === VERTICE) {
             vertices.add(new Vertice(mouseX, mouseY, vn++));
         } else if (selectedTool === EDGES) {
@@ -163,11 +189,22 @@ function mouseClicked() {
     }
 }
 
+function mouseMoved() {
+    if(isInsideFirstButton()) {
+        hintText = "Create Vertex";
+    } else if (isInsideSecondButton()) {
+        hintText = "Create Edge";
+    } else if (isInsideThirdButton()) {
+        hintText = "Move Vertex";
+    } else {
+        hintText = null;
+    }
+}
+
 function mouseDragged() {
     if (selectedTool === MOVE &&
         !!lockedVertex &&
-        (dist(drawingBoardLocation[0] + (drawingBoardSize[0] / 2), mouseX) < ((drawingBoardSize[0] - verticeScale) / 2)) &&
-        (dist(drawingBoardLocation[1] + (drawingBoardSize[1] / 2), mouseY) < ((drawingBoardSize[1] - verticeScale) / 2))
+        isInsideBoard()
     ) {
         lockedVertex.x = mouseX;
         lockedVertex.y = mouseY;
