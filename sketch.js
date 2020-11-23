@@ -2,8 +2,8 @@
 const VERTICE = 'vertice';
 const EDGES = 'edges';
 const MOVE = 'move';
-const vertices = [];
-let edges = [];
+let vertices = new Set();
+let edges = new Set();
 const button1Location = [5, 15];
 const button2Location = [5, 50];
 const button3Location = [25, 120];
@@ -71,7 +71,7 @@ const vDist = ({x,y}, {x: x1, y: y1}) => {
     return Math.sqrt(Math.pow(Math.abs(x1 - x), 2) + Math.pow(Math.abs(y1 - y), 2));
 }
 const drawVertices = () => {
-    vertices.forEach((v) => {
+    Array.from(vertices).forEach((v) => {
         if (v === lockedVertex || v === firstVertice) {
             fill(0, 255, 0);
         } else {
@@ -84,7 +84,7 @@ const drawVertices = () => {
     })
 }
 const drawEdges = () => {
-    edges.forEach(edge => {
+    Array.from(edges).forEach(edge => {
         const v1 = edge.v1;
         const v2 = edge.v2;
         line(v1.x, v1.y, v2.x, v2.y);
@@ -92,21 +92,25 @@ const drawEdges = () => {
 }
 
 const reverseGraph = () => {
-    let kGraph = vertices.map(v => {
-        return vertices.map(v2 => {
-            if (v2 !== v) {
-                return new Edge(v, v2);
+    let edgesArr = [];
+    let kGraph = Array.from(vertices).map(v => {
+        return Array.from(vertices).map(v2 => {
+            const newEdge = new Edge(v, v2);
+            if (v2 !== v && !edgesArr.find(edge => edge.equals(newEdge))) {
+                edgesArr.push(newEdge);
+                return newEdge;
             }
         });
     }).flat().filter(a => !!a);
 
+
     console.log('kGraph', kGraph);
-    edges.forEach(e => {
+    Array.from(edges).forEach(e => {
         kGraph = kGraph.filter(edge => !edge.equals(e));
     });
 
-    console.log(kGraph);
-    edges = [...kGraph];
+    edges = new Set([...kGraph]);
+    console.log(edges);
 }
 
 function setup() {
@@ -134,26 +138,26 @@ function mouseClicked() {
         reverseGraph();
     } else if (Math.abs(mouseX - (drawingBoardLocation[0] + (drawingBoardSize[0] / 2))) < (drawingBoardSize[0]/2) && Math.abs(mouseY - (drawingBoardLocation[1] + (drawingBoardSize[1] / 2))) < (drawingBoardSize[1]/2)) {
         if (selectedTool === VERTICE) {
-            vertices.push(new Vertice(mouseX, mouseY, vn++));
+            vertices.add(new Vertice(mouseX, mouseY, vn++));
         } else if (selectedTool === EDGES) {
             if (currentState === STATES.none) {
-                vertices.forEach(v => {
+                Array.from(vertices).forEach(v => {
                     if (vDist({x: mouseX, y: mouseY}, v) <= verticeScale) {
                         firstVertice = v;
                         currentState = STATES.selectedFirstEdge;
                     }
                 })
             } else if (currentState === STATES.selectedFirstEdge) {
-                vertices.forEach(v => {
+                Array.from(vertices).forEach(v => {
                     if (vDist({x: mouseX, y: mouseY}, v) <= verticeScale) {
-                        edges.push(new Edge(firstVertice, v));
+                        edges.add(new Edge(firstVertice, v));
                         currentState = STATES.none;
                         firstVertice = null;
                     }
                 })
             }
         } else if (selectedTool === MOVE) {
-            vertices.forEach(v => {
+            Array.from(vertices).forEach(v => {
                 if ((vDist({x: mouseX, y: mouseY}, v) <= verticeScale) && !lockedVertex) {
                     lockedVertex = v;
                 }
