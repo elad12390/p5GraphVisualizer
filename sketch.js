@@ -202,9 +202,6 @@ const colorGraph = () => {
         colorVertice(v, white)
     });
     Array.from(vertices).forEach((v,i) => {
-        if (!Array.from(vertices).filter(a => isWhite(a)).length) {
-            return;
-        }
         const opposite = isSameColor(v.color, colors[0]) ? colors[1] : colors[0];
         getConnectedVetrices(v).forEach(otherVertex => {
                 colorVertice(otherVertex, opposite)
